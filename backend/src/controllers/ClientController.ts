@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import clientService from '../services/ClientService';
+import emailService from '../services/EmailService';
+
 
 class ClientController {
     async register(req: Request, res: Response) {
@@ -15,7 +17,16 @@ class ClientController {
             }
             // Se o email não existir, continua com o registro
             const client = await clientService.register(nome, email, senha);
+
+             // Envia email de confirmação
+            await emailService.sendEmail(
+            email,
+            'Cadastro realizado com sucesso',
+            `Olá ${nome},\n\nSeu cadastro foi realizado com sucesso!\n\nObrigado!`
+        );
+
             return res.status(201).json(client);
+
         } catch (error) {
             console.error('Erro ao registrar cliente:', error);
             return res.status(500).json({ error: 'Erro ao registrar cliente' });
@@ -30,6 +41,7 @@ class ClientController {
         }
         return res.status(404).json({ error: 'Client not found' });
     }
+
 
     async updateClient(req: Request, res: Response) {
         const { id } = req.params;
