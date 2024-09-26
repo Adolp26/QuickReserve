@@ -27,9 +27,6 @@ class EmailService {
         };
 
         try {
-            console.log('Usuário:', process.env.GMAIL_USER);
-            console.log('Senha:', process.env.GMAIL_PASS); // Não recomendo logar senhas em produção
-
             await this.transporter.sendMail(mailOptions);
             console.log('Email enviado para: ' + to);
         } catch (error) {
