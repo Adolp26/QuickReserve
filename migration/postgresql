@@ -1,0 +1,89 @@
+
+-- Criação das tabelas básicas
+
+CREATE TABLE administradores (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(100) NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    telefone VARCHAR(15),
+    senha VARCHAR(100) NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação da tabela de restaurantes
+
+CREATE TABLE restaurantes (
+    id SERIAL PRIMARY KEY,
+    administrador_id INTEGER REFERENCES administradores(id) ON DELETE SET NULL,
+    nome VARCHAR(100),
+    endereco VARCHAR(255),
+    hora_abertura TIME,
+    hora_fechamento TIME,
+    politicas_reserva TEXT,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação da tabela de funcionários que referencia restaurantes
+
+CREATE TABLE funcionarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(100) NOT NULL,
+    restaurante_id INTEGER REFERENCES restaurantes(id) ON DELETE SET NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação da tabela de mesas que referencia restaurantes
+
+CREATE TABLE mesas (
+    id SERIAL PRIMARY KEY,
+    restaurante_id INTEGER REFERENCES restaurantes(id) ON DELETE CASCADE,
+    numero INTEGER,
+    capacidade INTEGER,
+    disponivel BOOLEAN DEFAULT TRUE,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação da tabela de reservas que referencia clientes, mesas e funcionários
+
+CREATE TABLE reservas (
+    id SERIAL PRIMARY KEY,
+    cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
+    mesa_id INTEGER REFERENCES mesas(id) ON DELETE SET NULL,
+    funcionario_id INTEGER REFERENCES funcionarios(id) ON DELETE SET NULL,
+    data_reserva DATE,   -- Coluna separada para a data
+    hora_reserva TIME,   -- Coluna separada para a hora
+    status VARCHAR(50),
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação da tabela de pagamentos que referencia reservas
+
+CREATE TABLE pagamentos (
+    id SERIAL PRIMARY KEY,
+    reserva_id INTEGER REFERENCES reservas(id) ON DELETE CASCADE,
+    valor DECIMAL(10, 2),
+    metodo_pagamento VARCHAR(50),
+    status_pagamento VARCHAR(50),
+    data_pagamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Criação da tabela de notificações que referencia clientes
+
+CREATE TABLE notificacoes (
+    id SERIAL PRIMARY KEY,
+    cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
+    mensagem TEXT,
+    tipo_notificacao VARCHAR(50),
+    enviada BOOLEAN DEFAULT FALSE,
+    data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
