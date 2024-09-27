@@ -2,14 +2,19 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./src", // Ajuste conforme sua estrutura
+    "paths": {
+      "*": ["node_modules/*", "*"]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*", // Certifique-se de incluir a pasta src
+    "src/types/**/*" // Inclua a pasta de tipos se necessário
+  ]
 }
 
 

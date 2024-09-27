@@ -20,6 +20,14 @@ class ClientService {
     async deleteClient(id: number) {
         return clientRepository.delete(id);
     }
+
+    async login(email: string, senha: string) {
+        const client = await clientRepository.findByEmail(email);
+        if (client && await clientRepository.comparePassword(senha, client.senha)) {
+            return client; // Cliente autenticado com sucesso
+        }
+        return null; // Retorna nulo se não autenticado
+    }
 }
 
 export default new ClientService();

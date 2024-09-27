@@ -34,6 +34,10 @@ class ClientRepository {
         }
         return false;
     }
+
+    async comparePassword(plainPassword: string, hashedPassword: string) {
+        return await bcrypt.compare(plainPassword, hashedPassword);
+    }
 }
 
 export default new ClientRepository();

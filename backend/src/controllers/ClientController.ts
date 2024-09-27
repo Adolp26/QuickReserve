@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import clientService from '../services/ClientService';
 import emailService from '../services/EmailService';
+import authService from '../services/AuthService'; // Importe o AuthService
 
 
 class ClientController {
@@ -60,6 +61,19 @@ class ClientController {
             return res.status(204).send();
         }
         return res.status(404).json({ error: 'Client not found' });
+    }
+
+    async login(req: Request, res: Response) {
+        const { email, senha } = req.body;
+    
+        try {
+          const { token, clientId } = await authService.loginClient(email, senha);
+          return res.json({ token, clientId });
+        } catch (error) {
+            const errorMessage = (error as Error).message;
+            console.error('Erro ao fazer login:', errorMessage);
+            return res.status(401).json({ error: errorMessage });
+          }
     }
 }
 
