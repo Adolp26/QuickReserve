@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 // import AdminRepository from '../repositories/AdminRepository';
 import ClientRepository from '../repositories/ClientRepository';
-// import EmployeeRepository from '../repositories/EmployeeRepository';
+import EmployeeRepository from '../repositories/EmployeeRepository';
 import { JWT_SECRET } from '../config/constants';
 
 class AuthService {
@@ -46,26 +46,25 @@ class AuthService {
     const token = this.generateToken(client.id, client.email, 'client');
     return { token, clientId: client.id };
   }
+
+  // Login para funcionários
+  async loginEmployee(email: string, password: string) {
+    const employee = await EmployeeRepository.findByEmail(email);
+
+    if (!employee) {
+      throw new Error('Funcionário não encontrado');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, employee.senha);
+
+    if (!isPasswordValid) {
+      throw new Error('Senha inválida');
+    }
+
+    // Definindo o papel como 'employee'
+    const token = jwt.sign({ id: employee.id, email: employee.email, role: 'employee' }, JWT_SECRET, { expiresIn: '1h' });
+    return { token, employeeId: employee.id };
+  }
 }
-
-//   // Login para funcionários
-//   async loginEmployee(email: string, password: string) {
-//     const employee = await EmployeeRepository.findByEmail(email);
-
-//     if (!employee) {
-//       throw new Error('Funcionário não encontrado');
-//     }
-
-//     const isPasswordValid = await bcrypt.compare(password, employee.senha);
-
-//     if (!isPasswordValid) {
-//       throw new Error('Senha inválida');
-//     }
-
-//     // Definindo o papel como 'employee'
-//     const token = jwt.sign({ id: employee.id, email: employee.email, role: 'employee' }, JWT_SECRET, { expiresIn: '1h' });
-//     return { token, employeeId: employee.id };
-//   }
-
 
 export default new AuthService();
