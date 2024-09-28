@@ -1,4 +1,3 @@
-
 -- Criação das tabelas básicas
 
 CREATE TABLE administradores (
@@ -59,13 +58,13 @@ CREATE TABLE reservas (
     id SERIAL PRIMARY KEY,
     cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
     mesa_id INTEGER REFERENCES mesas(id) ON DELETE SET NULL,
-    funcionario_id INTEGER REFERENCES funcionarios(id) ON DELETE SET NULL,
+    restaurante_id INTEGER REFERENCES restaurantes(id) ON DELETE CASCADE,  -- Coluna para referência ao restaurante
     data_reserva DATE,   -- Coluna separada para a data
     hora_reserva TIME,   -- Coluna separada para a hora
     status VARCHAR(50),
+    hora_final TIMESTAMP;
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 -- Criação da tabela de pagamentos que referencia reservas
 
 CREATE TABLE pagamentos (
