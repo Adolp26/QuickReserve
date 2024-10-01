@@ -1,5 +1,6 @@
 import ReservationRepository from '../repositories/ReservationRepository'; // Ajuste o caminho conforme necessário
 import { sendEmail } from '../utils/emailUtils';
+import ClientRepository from '../repositories/ClientRepository';
 
 
 class ReservationService {
@@ -90,15 +91,74 @@ class ReservationService {
 
     async cancelReservation(id: number) {
         console.log(`Cancelando reserva com ID: ${id}`);
+        
+        const reservation = await ReservationRepository.findById(id);
+        if (!reservation) {
+            throw new Error('Reserva não encontrada.');
+        }
+
+        // Busca o cliente pelo ID para enviar email
+        const cliente = await ClientRepository.findById(reservation.cliente_id); 
+        if (!cliente) {
+            throw new Error('Cliente não encontrado.');
+        }
+
         const updatedReservation = await ReservationRepository.cancel(id);
         console.log("Reserva cancelada com sucesso:", updatedReservation);
+
+        const subject = 'Cancelamento de Reserva';
+        const text = `
+            Cancelamento de Reserva
+
+            Sua reserva foi cancelada.
+
+            Detalhes da Reserva:
+            Número da Reserva: ${reservation.id}
+            Número da Mesa: ${reservation.mesa_id}
+            Data da Reserva: ${reservation.data_reserva}
+            Hora da Reserva: ${reservation.hora_reserva}
+
+            Se precisar de ajuda, não hesite em nos contatar.
+        `;
+
+        await sendEmail(cliente.email, subject, text);
+
         return updatedReservation;
     }
 
     async completeReservation(id: number) {
         console.log(`Concluindo reserva com ID: ${id}`);
+        
+        const reservation = await ReservationRepository.findById(id);
+        if (!reservation) {
+            throw new Error('Reserva não encontrada.');
+        }
+
+        const cliente = await ClientRepository.findById(reservation.cliente_id); 
+        if (!cliente) {
+            throw new Error('Cliente não encontrado.');
+        }
+
         const updatedReservation = await ReservationRepository.complete(id);
         console.log("Reserva concluída com sucesso:", updatedReservation);
+
+        const subject = 'Conclusão de Reserva';
+        const text = `
+            Conclusão de Reserva
+
+            Sua reserva foi concluída com sucesso!
+
+            Detalhes da Reserva:
+            Número da Reserva: ${reservation.id}
+            Número da Mesa: ${reservation.mesa_id}
+            Data da Reserva: ${reservation.data_reserva}
+            Hora da Reserva: ${reservation.hora_reserva}
+
+            Agradecemos por escolher nosso serviço. Se precisar de ajuda, não hesite em nos contatar.
+        `;
+
+        await sendEmail(cliente.email, subject, text); 
+
         return updatedReservation;
     }
 }
