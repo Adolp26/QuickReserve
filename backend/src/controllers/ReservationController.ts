@@ -1,33 +1,20 @@
 import { Request, Response } from 'express';
 import ReservationService from '../services/ReservationService'; // Ajuste o caminho conforme necessário
-import EmailService from '../services/EmailService'; // Ajuste o caminho conforme necessário
 
 class ReservationController {
     async createReservation(req: Request, res: Response) {
         try {
-            const { clienteId, mesaId, restauranteId, dataReserva, horaReserva, clienteEmail } = req.body; // Adicione clienteEmail ao body
-    
+            const { clienteId, mesaId, restauranteId, dataReserva, horaReserva, clienteEmail } = req.body; // Adiciona clienteEmail ao body
+            
             // Cria a reserva
-            const createdReservation = await ReservationService.createReservation(clienteId, mesaId, restauranteId, new Date(dataReserva), horaReserva);
-    
-            // Envia email de confirmação
-            const subject = 'Confirmação de Reserva';
-            const text =  `
-            **Confirmação de Reserva**
-            
-            Sua reserva foi criada com sucesso! 🎉
-        
-            Detalhes da Reserva:**
-
-            Número da Reserva: ${createdReservation.id}
-            Número da Mesa ${createdReservation.mesa_id}
-            Data da Reserva: ${createdReservation.data_reserva}
-            Hora da Reserva: ${createdReservation.hora_reserva}
-            Status: ${createdReservation.status}
-            
-            Agradecemos por escolher nosso serviço. Se precisar de ajuda, não hesite em nos contatar!
-        `;
-            await EmailService.sendEmail(clienteEmail, subject, text); // Envia o email para o cliente
+            const createdReservation = await ReservationService.createReservation(
+                clienteId, 
+                mesaId, 
+                restauranteId, 
+                new Date(dataReserva), 
+                horaReserva,
+                clienteEmail // Passa o clienteEmail para o Service
+            );
     
             res.status(201).json(createdReservation);
         } catch (error) {

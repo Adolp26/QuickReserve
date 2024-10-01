@@ -1,34 +1,52 @@
 import ReservationRepository from '../repositories/ReservationRepository'; // Ajuste o caminho conforme necessário
+import { sendEmail } from '../utils/emailUtils';
+
 
 class ReservationService {
-    async createReservation(clienteId: number, mesaId: number, restauranteId: number, dataReserva: Date, horaReserva: string) {
-       
+    async createReservation(clienteId: number, mesaId: number, restauranteId: number, dataReserva: Date, horaReserva: string, clienteEmail: string) {
         // Verifica se já existe uma reserva para a mesa na data informada
         const existingReservation = await ReservationRepository.findReservationByMesaAndDate(mesaId, dataReserva);
-    
+
         if (existingReservation) {
             throw new Error('A mesa já está reservada para o dia especificado.');
         }
-    
+
         // Verifica se a data está no formato correto
         const reservationDate = new Date(dataReserva); // Converte a string para Date
         const [hour, minute] = horaReserva.split(':'); // Divide a string de hora em partes
         const reservationTime = `${hour}:${minute}:00`; // Formata como TIME
-    
+
         const reservationData = {
             cliente_id: clienteId,
             mesa_id: mesaId,
             restaurante_id: restauranteId,
-            data_reserva: reservationDate,  // Aqui deve ser um Date
-            hora_reserva: reservationTime,    // Aqui deve ser uma string no formato TIME
+            data_reserva: reservationDate,
+            hora_reserva: reservationTime,
             status: 'Confirmada',
         };
-    
+
         const createdReservation = await ReservationRepository.create(reservationData);
         console.log("Reserva criada com sucesso:", createdReservation);
 
-        
-        
+        // Envia o email de confirmação de reserva
+        const subject = 'Confirmação de Reserva';
+        const text = `
+            Confirmação de Reserva
+
+            Sua reserva foi criada com sucesso! 🎉
+
+            Detalhes da Reserva:
+            Número da Reserva: ${createdReservation.id}
+            Número da Mesa ${createdReservation.mesa_id}
+            Data da Reserva: ${createdReservation.data_reserva}
+            Hora da Reserva: ${createdReservation.hora_reserva}
+            Status: ${createdReservation.status}
+
+            Agradecemos por escolher nosso serviço. Se precisar de ajuda, não hesite em nos contatar!
+        `;
+
+        await sendEmail(clienteEmail, subject, text); // Agora você usa o utilitário de email
+
         return createdReservation;
     }
 
